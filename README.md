@@ -34,6 +34,9 @@
   && resource/egov/spring/context-properties.xml에 공공데이터포털에서 받은 인증키 등록
 8. 서버 실행후 127.0.0.1:8080에서 실행 확인
 
+## 실행화면
+![메인 페이지](https://github.com/WhiteKIM/weather_info/assets/12975617/1ed8b039-a859-41fe-ac9d-1d5df8261af9)
+
 ## 주의 사항
 - JDK 1.8이 설치되어 있는지 확인합니다.
 - API 키 설정
