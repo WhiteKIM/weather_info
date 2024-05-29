@@ -82,6 +82,10 @@ public class WeatherServiceImpl extends EgovAbstractServiceImpl implements Weath
 				.queryParam("nx", nx).queryParam("ny", ny).build().encode().toUri();
 
 		ResponseEntity<Response> entities = restTemplate.exchange(uri, HttpMethod.GET, entity, Response.class);
+		if(entities.getBody().getResponse().getBody() == null) {
+			return new ArrayList<>();//빈 값을 반환한다.
+		}
+		
 		return (entities.getBody().getResponse().getBody().getItems().getItem()).stream()
 				.map(data -> mapper.convertValue(data, Weather.class)).collect(Collectors.toList());
 	}
@@ -101,6 +105,10 @@ public class WeatherServiceImpl extends EgovAbstractServiceImpl implements Weath
 				.queryParam("tmFc", dateTime).build().encode().toUri();
 
 		ResponseEntity<Response> entities = restTemplate.exchange(uri, HttpMethod.GET, entity, Response.class);
+		if(entities.getBody().getResponse().getBody() == null) {
+			return "";//빈 값을 반환한다.
+		}
+		
 		List<Map<String, Object>> item = entities.getBody().getResponse().getBody().getItems().getItem();
 		return (String) item.get(0).get("wfSv");
 	}
@@ -130,11 +138,17 @@ public class WeatherServiceImpl extends EgovAbstractServiceImpl implements Weath
 				.queryParam("tmFc", dateTime).build().encode().toUri();
 
 		ResponseEntity<Response> taEntity = restTemplate.exchange(taUri, HttpMethod.GET, entity, Response.class);
-		List<Map<String, Object>> item1 = taEntity.getBody().getResponse().getBody().getItems().getItem();
+		List<Map<String, Object>> item1 = new ArrayList<>();
+		if(taEntity.getBody().getResponse().getBody() != null)
+			item1 = taEntity.getBody().getResponse().getBody().getItems().getItem();
+		
 		// 1~7일은 오전 오후 기상 정보가 조회
 		ResponseEntity<Response> landEntity = restTemplate.exchange(landUri, HttpMethod.GET, entity, Response.class);
+		List<Map<String, Object>> item2 = new ArrayList<>();
 		// 8, 9, 10일의 기상 정보는 하나만
-		List<Map<String, Object>> item2 = landEntity.getBody().getResponse().getBody().getItems().getItem();
+		if(taEntity.getBody().getResponse().getBody() != null)
+			item2 = landEntity.getBody().getResponse().getBody().getItems().getItem();
+		
 		// 일주일 정보는 오전 오후, 8일부터 10일은 하나로 오전 오후 정보로 만드는것을 고려
 		Map<String, Object> landData = item2.get(0);
 		List<DayCondition> conditionResult = getMidtermWeatherCondition(landData);
@@ -182,7 +196,13 @@ public class WeatherServiceImpl extends EgovAbstractServiceImpl implements Weath
 				.build().encode().toUri();
 		
 		ResponseEntity<Response> entities = restTemplate.exchange(Uri, HttpMethod.GET, entity, Response.class);
-		List<Map<String, Object>> result = entities.getBody().getResponse().getBody().getItems().getItem();
+		List<Map<String, Object>> result = new ArrayList<>();
+		
+		if(entities.getBody().getResponse().getBody() == null) {
+			return new ArrayList<>();//빈 배열을 반환한다.
+		}
+		
+		result = entities.getBody().getResponse().getBody().getItems().getItem();
 		return result.stream().map(data -> mapper.convertValue(data, WeatherWarnVO.class)).collect(Collectors.toList());
 	}
 
